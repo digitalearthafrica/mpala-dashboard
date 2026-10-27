@@ -162,8 +162,11 @@ export default function App() {
     map.on('viewreset', updateClipPath);
     map.on('zoomend', updateClipPath);
 
-    fetch('/data/Mpala.geojson')
-      .then((res) => res.json())
+    fetch(`${import.meta.env.BASE_URL}data/Mpala.geojson`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
       .then((geojson) => {
         geojsonRef.current = geojson;
 
@@ -226,7 +229,7 @@ return (
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <img
-            src="/DE_Africa_Logo.jpg"
+            src={`${import.meta.env.BASE_URL}DE_Africa_Logo.jpg`}
             alt="Digital Earth Africa Logo"
             style={{
               height: '38px',
