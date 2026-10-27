@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/de-africa': {
-        target: 'https://ows.digitalearthafrica.org',
+        target: 'https://ows.digitalearthafrica.africa',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/de-africa/, ''),
         headers: {
