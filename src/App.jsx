@@ -147,16 +147,16 @@ export default function App() {
     const NoReferrerWMS = L.TileLayer.WMS.extend({
       createTile(coords, done) {
         const tile = document.createElement('img');
-        tile.referrerPolicy = 'no-referrer'; // Bypasses CloudFront Referer blocking
+        tile.setAttribute('referrerpolicy', 'no-referrer');
+        tile.referrerPolicy = 'no-referrer';
         tile.alt = '';
         tile.setAttribute('role', 'presentation');
 
         L.DomEvent.on(tile, 'load', L.Util.bind(this._tileOnLoad, this, done, tile));
         L.DomEvent.on(tile, 'error', L.Util.bind(this._tileOnError, this, done, tile));
 
-        if (this.options.crossOrigin || this.options.crossOrigin === '') {
-          tile.crossOrigin = this.options.crossOrigin === true ? '' : this.options.crossOrigin;
-        }
+        // Always set crossOrigin to anonymous for WMS tiles on WebKit
+        tile.crossOrigin = 'anonymous';
 
         tile.src = this.getTileUrl(coords);
         return tile;
