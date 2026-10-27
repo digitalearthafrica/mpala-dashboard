@@ -143,14 +143,36 @@ export default function App() {
     wmsPane.style.clipPath = 'url(#mpala-clip-path)';
     wmsPane.style.webkitClipPath = 'url(#mpala-clip-path)';
 
-    const wms = L.tileLayer.wms(WMS_BASE_URL, {
+    // Custom WMS layer that forces referrerPolicy="no-referrer" on every tile image
+    const NoReferrerWMS = L.TileLayer.WMS.extend({
+      createTile(coords, done) {
+        const tile = document.createElement('img');
+        tile.referrerPolicy = 'no-referrer'; // Bypasses CloudFront Referer blocking
+        tile.alt = '';
+        tile.setAttribute('role', 'presentation');
+
+        L.DomEvent.on(tile, 'load', L.Util.bind(this._tileOnLoad, this, done, tile));
+        L.DomEvent.on(tile, 'error', L.Util.bind(this._tileOnError, this, done, tile));
+
+        if (this.options.crossOrigin || this.options.crossOrigin === '') {
+          tile.crossOrigin = this.options.crossOrigin === true ? '' : this.options.crossOrigin;
+        }
+
+        tile.src = this.getTileUrl(coords);
+        return tile;
+      },
+    });
+
+    const wms = new NoReferrerWMS(WMS_BASE_URL, {
       pane: 'ndviPane',
       layers: currentConfig.layer,
-      styles: currentConfig.style,
+      styles: currentConfig.style || '',
       format: 'image/png',
       transparent: true,
       time: wmsTimeParam,
       version: '1.1.1',
+      srs: 'EPSG:3857',
+      uppercase: true,
       attribution: '&copy; Digital Earth Africa',
     }).addTo(map);
 
@@ -533,6 +555,7 @@ return (
             <img
               key={currentConfig.layer + currentConfig.style}
               src={currentConfig.legendUrl}
+              referrerPolicy="no-referrer"
               alt={`${currentConfig.label} Legend`}
               style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
               onError={(e) => {
