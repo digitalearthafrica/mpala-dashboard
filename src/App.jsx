@@ -5,7 +5,7 @@ import 'leaflet/dist/leaflet.css';
 // Uses the dev proxy locally, but direct OWS URL when deployed to production
 const WMS_BASE_URL = import.meta.env.DEV 
   ? '/de-africa/wms' 
-  : 'https://ows.digitalearthafrica.org/wms';
+  : 'https://ows.digitalearth.africa/wms';
 
 const VARIABLES = {
   anomaly: {
